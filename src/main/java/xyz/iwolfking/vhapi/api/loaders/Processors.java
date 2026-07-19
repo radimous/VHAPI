@@ -24,6 +24,7 @@ import xyz.iwolfking.vhapi.api.loaders.card.*;
 import xyz.iwolfking.vhapi.api.loaders.challenge.ChallengeCrystalConfigLoader;
 import xyz.iwolfking.vhapi.api.loaders.challenge.ChallengeCurseConfigLoader;
 import xyz.iwolfking.vhapi.api.loaders.companion.CompanionConfigLoader;
+import xyz.iwolfking.vhapi.api.loaders.companion.CompanionRelicsConfigLoader;
 import xyz.iwolfking.vhapi.api.loaders.expertises.ExpertiseConfigLoader;
 import xyz.iwolfking.vhapi.api.loaders.expertises.ExpertisesGUIConfigLoader;
 import xyz.iwolfking.vhapi.api.loaders.gear.*;
@@ -249,6 +250,7 @@ public class Processors {
         public static final ChallengeCurseConfigLoader CHALLENGE_CURSE_CONFIG_LOADER = new ChallengeCurseConfigLoader();
         public static final ChallengeCrystalConfigLoader CHALLENGE_CRYSTAL_CONFIG_LOADER = new ChallengeCrystalConfigLoader();
         public static final CompanionConfigLoader COMPANION_CONFIG_LOADER = new CompanionConfigLoader();
+        public static final CompanionRelicsConfigLoader COMPANION_RELICS_CONFIG_LOADER = new CompanionRelicsConfigLoader();
     }
 
     public static class TransmogConfigProcessors {
