@@ -6,6 +6,8 @@ import iskallia.vault.item.crystal.CrystalData;
 import iskallia.vault.recipe.anvil.AnvilRecipe;
 import iskallia.vault.recipe.anvil.SealAnvilRecipe;
 import iskallia.vault.recipe.anvil.VanillaAnvilRecipe;
+import me.fallenbreath.conditionalmixin.api.annotation.Condition;
+import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.recipe.vanilla.IJeiAnvilRecipe;
 import mezz.jei.api.recipe.vanilla.IVanillaRecipeFactory;
@@ -20,6 +22,11 @@ import xyz.iwolfking.vhapi.mixin.accessors.VaultCrystalConfigAccessor;
 import java.util.ArrayList;
 import java.util.List;
 
+@Restriction(
+        require = {
+                @Condition(type = Condition.Type.MOD, value = "jei")
+        }
+)
 @Mixin(value = SealAnvilRecipe.class, remap = false)
 public abstract class MixinSealAnvilRecipe extends VanillaAnvilRecipe {
 
