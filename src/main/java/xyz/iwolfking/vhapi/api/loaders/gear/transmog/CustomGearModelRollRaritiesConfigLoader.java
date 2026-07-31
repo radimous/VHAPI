@@ -7,6 +7,8 @@ import xyz.iwolfking.vhapi.api.events.VaultConfigEvent;
 import xyz.iwolfking.vhapi.api.loaders.gear.transmog.lib.CustomGearModelRollRaritiesConfig;
 import xyz.iwolfking.vhapi.api.loaders.lib.core.VaultConfigProcessor;
 
+import java.util.List;
+
 @Mod.EventBusSubscriber(modid = "vhapi", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CustomGearModelRollRaritiesConfigLoader extends VaultConfigProcessor<CustomGearModelRollRaritiesConfig> {
 
@@ -21,7 +23,7 @@ public class CustomGearModelRollRaritiesConfigLoader extends VaultConfigProcesso
             if(CustomGearModelRolls.CUSTOM_MODEL_ROLLS_MAP.containsKey(config.itemRegistryName)) {
                 for(VaultGearRarity rarity : VaultGearRarity.values()) {
                     if(CustomGearModelRolls.CUSTOM_MODEL_ROLLS_MAP.get(config.itemRegistryName).containsKey(rarity.name())){
-                        CustomGearModelRolls.CUSTOM_MODEL_ROLLS_MAP.get(config.itemRegistryName).get(rarity.name()).addAll(config.MODEL_ROLLS.get(rarity.name()));
+                        addUnique(CustomGearModelRolls.CUSTOM_MODEL_ROLLS_MAP.get(config.itemRegistryName).get(rarity.name()), (config.MODEL_ROLLS.get(rarity.name())));
                     }
                     else {
                         if(config.MODEL_ROLLS.containsKey(rarity.name())) {
@@ -38,4 +40,11 @@ public class CustomGearModelRollRaritiesConfigLoader extends VaultConfigProcesso
         }
     }
 
+    private void addUnique(List<String> original, List<String> toAdd){
+        for (var newStr: toAdd) {
+            if (!original.contains(newStr)) {
+                original.add(newStr);
+            }
+        }
+    }
 }
