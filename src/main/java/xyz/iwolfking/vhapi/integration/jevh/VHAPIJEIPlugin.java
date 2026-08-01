@@ -22,6 +22,9 @@ import iskallia.vault.core.world.template.data.DirectTemplateEntry;
 import iskallia.vault.core.world.template.data.IndirectTemplateEntry;
 import iskallia.vault.core.world.template.data.TemplateEntry;
 import iskallia.vault.core.world.template.data.TemplatePool;
+import iskallia.vault.entity.entity.pet.PetHelper;
+import iskallia.vault.entity.entity.pet.PetModelRegistry;
+import iskallia.vault.entity.entity.pet.PetModelType;
 import iskallia.vault.gear.GearRollHelper;
 import iskallia.vault.gear.VaultGearRarity;
 import iskallia.vault.gear.VaultGearState;
@@ -123,6 +126,7 @@ public class VHAPIJEIPlugin implements IModPlugin {
     public static final RecipeType<LabeledLootInfo> CHALLENGE_CRYSTALS = RecipeType.create("vhapi", "challenge_crystals", LabeledLootInfo.class);
     public static final RecipeType<LabeledLootInfo> COMPANION_RELIC_CHANCES = RecipeType.create("vhapi", "companion_relic_chances", LabeledLootInfo.class);
     public static final RecipeType<LabeledLootInfo> COSMIC_DUST_CHANCES = RecipeType.create("vhapi", "cosmic_dust_chances", LabeledLootInfo.class);
+    public static final RecipeType<LabeledLootInfo> COMPANION_MODELS = RecipeType.create("vhapi", "companion_models", LabeledLootInfo.class);
     public static final RecipeType<LabeledLootInfo> ANCIENT_RELIC_CHANCES = RecipeType.create("vhapi", "ancient_relic_chances", LabeledLootInfo.class);
     public static final RecipeType<VaultAltarRecipe> VAULT_ALTAR = RecipeType.create("vhapi", "vault_altar", VaultAltarRecipe.class);
     public static final RecipeType<CrystalWorkbenchRecipe> CRYSTAL_WORKBENCH = RecipeType.create("vhapi", "crystal_workbench", CrystalWorkbenchRecipe.class);
@@ -158,6 +162,8 @@ public class VHAPIJEIPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.GREEDY_ANCHOR), CHALLENGE_CRYSTALS);
         registration.addRecipeCatalyst(new ItemStack(ModItems.COMPANION_RELIC_FRAGMENT),  COMPANION_RELIC_CHANCES);
         registration.addRecipeCatalyst(new ItemStack(ModItems.COSMIC_DUST), COSMIC_DUST_CHANCES);
+        registration.addRecipeCatalyst(new ItemStack(ModItems.COMPANION), COMPANION_MODELS);
+        registration.addRecipeCatalyst(new ItemStack(ModItems.COMPANION_EGG), COMPANION_MODELS);
         registration.addRecipeCatalyst(new ItemStack(ModItems.COMPANION_RELIC_FRAGMENT), ANCIENT_RELIC_CHANCES);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.VAULT_ALTAR), VAULT_ALTAR);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRYSTAL_WORKBENCH), CRYSTAL_WORKBENCH);
@@ -199,6 +205,7 @@ public class VHAPIJEIPlugin implements IModPlugin {
         registration.addRecipes(COMPANION_RELIC_CHANCES, getCompanionRelicMetaValues());
         registration.addRecipes(COSMIC_DUST_CHANCES, getCosmicDustChances());
         registration.addRecipes(ANCIENT_RELIC_CHANCES, getAncientRelicChances());
+        registration.addRecipes(COMPANION_MODELS, getCompanionModels());
 
         List<VaultAltarRecipe> altarRecipes = new ArrayList<>();
 
@@ -325,6 +332,7 @@ public class VHAPIJEIPlugin implements IModPlugin {
         registration.addRecipeCategories(makeLabeledLootInfoCategory(guiHelper, COMPANION_RELIC_CHANCES, ModItems.COMPANION_RELIC_FRAGMENT, new TextComponent("Companion Relic Fragment Chances")));
         registration.addRecipeCategories(makeLabeledLootInfoCategory(guiHelper, COSMIC_DUST_CHANCES, ModItems.COSMIC_DUST, new TextComponent("Cosmic Dust Chances")));
         registration.addRecipeCategories(makeLabeledLootInfoCategory(guiHelper, ANCIENT_RELIC_CHANCES, ModItems.COMPANION_RELIC, new TextComponent("Ancient Companion Relic Chances")));
+        registration.addRecipeCategories(makeLabeledLootInfoCategory(guiHelper, COMPANION_MODELS, ModItems.COMPANION_EGG, new TextComponent("Companion Models")));
         registration.addRecipeCategories(new VaultAltarRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new CrystalWorkbenchRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
         ModFileInfo justEnoughVHMod = LoadingModList.get().getModFileById("just_enough_vh");
@@ -405,6 +413,13 @@ public class VHAPIJEIPlugin implements IModPlugin {
 
         return lootInfo;
     }
+    private static void addNonZeroSortedByRarity(Map<VaultRarity, Double> vaultRarityDoubleMap, ItemStack displayStack, List<ItemStack> itemList){
+        vaultRarityDoubleMap.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(((entry) -> {
+            if (entry.getValue() > 0) {
+                itemList.add(formatChestMetaValue(displayStack, entry.getKey(), entry.getValue()));
+            }
+        }));
+    }
 
     public static List<LabeledLootInfo> getChestMetaValues() {
         List<LabeledLootInfo> lootInfo = new ArrayList<>();
@@ -412,11 +427,7 @@ public class VHAPIJEIPlugin implements IModPlugin {
 
         ((VaultMetaChestConfigAccessor)ModConfigs.VAULT_CHEST_META).getCatalystChances().forEach((block, vaultRarityDoubleMap) -> {
             ItemStack stack = new ItemStack(block);
-            vaultRarityDoubleMap.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(((entry) -> {
-                if (entry.getValue() > 0) {
-                    items.add(formatChestMetaValue(stack, entry.getKey(), entry.getValue()));
-                }
-            }));
+            addNonZeroSortedByRarity(vaultRarityDoubleMap, stack, items);
         });
 
         lootInfo.add(LabeledLootInfo.of(items, new TextComponent("Catalyst Fragment Chance - Level " + ModConfigs.VAULT_CHEST_META.getCatalystMinLevel()), null));
@@ -1243,9 +1254,7 @@ public class VHAPIJEIPlugin implements IModPlugin {
         List<ItemStack> items = new ArrayList<>();
         ((CompanionRelicsConfigAccessor)ModConfigs.COMPANION_RELICS).getRelicChances().forEach((block, vaultRarityDoubleMap) -> {
             ItemStack stack = new ItemStack(block);
-            vaultRarityDoubleMap.forEach(((vaultRarity, aDouble) -> {
-                items.add(formatChestMetaValue(stack, vaultRarity, aDouble));
-            }));
+            addNonZeroSortedByRarity(vaultRarityDoubleMap, stack, items);
         });
         lootInfo.add(LabeledLootInfo.of(items, new TextComponent("Companion Relic Fragment Chances"), null));
         return lootInfo;
@@ -1256,9 +1265,7 @@ public class VHAPIJEIPlugin implements IModPlugin {
         List<ItemStack> items = new ArrayList<>();
         ((CompanionRelicsConfigAccessor)ModConfigs.COMPANION_RELICS).getParticleChances().forEach((block, vaultRarityDoubleMap) -> {
             ItemStack stack = new ItemStack(block);
-            vaultRarityDoubleMap.forEach(((vaultRarity, aDouble) -> {
-                items.add(formatChestMetaValue(stack, vaultRarity, aDouble));
-            }));
+            addNonZeroSortedByRarity(vaultRarityDoubleMap, stack, items);
         });
         lootInfo.add(LabeledLootInfo.of(items, new TextComponent("Cosmic Dust Chances"), null));
         return lootInfo;
@@ -1269,11 +1276,49 @@ public class VHAPIJEIPlugin implements IModPlugin {
         List<ItemStack> items = new ArrayList<>();
         ((CompanionRelicsConfigAccessor)ModConfigs.COMPANION_RELICS).getAncientRelicChances().forEach((block, vaultRarityDoubleMap) -> {
             ItemStack stack = new ItemStack(block);
-            vaultRarityDoubleMap.forEach(((vaultRarity, aDouble) -> {
-                items.add(formatChestMetaValue(stack, vaultRarity, aDouble));
-            }));
+            addNonZeroSortedByRarity(vaultRarityDoubleMap, stack, items);
         });
-        lootInfo.add(LabeledLootInfo.of(items, (Component)new TextComponent("Ancient Relic Chances"), null));
+        lootInfo.add(LabeledLootInfo.of(items, new TextComponent("Ancient Relic Chances"), null));
+        return lootInfo;
+    }
+
+    public static List<LabeledLootInfo> getCompanionModels() {
+        List<LabeledLootInfo> lootInfo = new ArrayList<>();
+        List<ItemStack> rollable = new ArrayList<>();
+        List<ItemStack> unlockable = new ArrayList<>();
+        List<ItemStack> reward = new ArrayList<>();
+        PetModelRegistry.getAll().forEach((pet -> {
+            var variants = pet.getVariants();
+            for (PetHelper.PetVariant variant : variants) {
+                ItemStack stack = new ItemStack(ModItems.COMPANION);
+                CompanionItem.setPetSeries(stack, CompanionSeries.PET);
+                CompanionItem.setPetType(stack, variant.type());
+                CompanionItem.setPetName(stack, variant.displayName());
+                CompanionItem.setOwnerName(stack, "");
+
+                CompoundTag nbt = stack.getOrCreateTagElement("display");
+                ListTag list = nbt.getList("Lore", 8);
+
+                if (variant.getWeight() != 1) {
+                    MutableComponent label = new TextComponent("weight: " + variant.getWeight()).withStyle(ChatFormatting.YELLOW);
+                    list.add(StringTag.valueOf(Component.Serializer.toJson(label)));
+                }
+
+                nbt.put("Lore", list);
+                if (!variant.requiresUnlock() && !variant.requiresRewards()) {
+                    rollable.add(stack);
+                }
+                if (variant.requiresUnlock()) {
+                    unlockable.add(stack);
+                }
+                if (variant.requiresRewards()) {
+                    reward.add(stack);
+                }
+            }
+        }));
+        lootInfo.addAll(LabeledLootInfo.pages(rollable, new TextComponent("Random Roll"), null));
+        lootInfo.addAll(LabeledLootInfo.pages(unlockable, new TextComponent("Unlockable"), null));
+        lootInfo.addAll(LabeledLootInfo.pages(reward, new TextComponent("Stream Reward"), null));
         return lootInfo;
     }
 

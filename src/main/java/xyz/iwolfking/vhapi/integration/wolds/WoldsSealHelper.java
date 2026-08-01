@@ -24,7 +24,7 @@ public class WoldsSealHelper {
         else if(objective instanceof EnchantedElixirCrystalObjective) {
             return ModItems.CRYSTAL_SEAL_ENCHANTER.getDefaultInstance().setHoverName(tooltips.get(0));
         }
-        else if(objective instanceof BallisticBingoCrystalObjective) {
+        else if(objective instanceof ScalingBallisticBingoCrystalObjective) {
             return ModItems.CRYSTAL_SEAL_DOOMSAYER.getDefaultInstance().setHoverName(tooltips.get(0));
         }
         else if(objective instanceof CorruptedCrystalObjective) {
