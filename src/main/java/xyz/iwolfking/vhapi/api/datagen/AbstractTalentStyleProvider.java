@@ -1,17 +1,16 @@
 package xyz.iwolfking.vhapi.api.datagen;
 
-import iskallia.vault.config.PrestigePowersGUIConfig;
 import iskallia.vault.config.TalentsGUIConfig;
 import iskallia.vault.config.entry.SkillStyle;
 import net.minecraft.data.DataGenerator;
 import xyz.iwolfking.vhapi.api.datagen.lib.VaultConfigBuilder;
-import xyz.iwolfking.vhapi.mixin.accessors.ExpertisesGUIConfigAccessor;
+import xyz.iwolfking.vhapi.mixin.accessors.TalentsGUIConfigAccessor;
 
 import java.util.HashMap;
 
 public abstract class AbstractTalentStyleProvider extends AbstractVaultConfigDataProvider<AbstractTalentStyleProvider.Builder> {
     protected AbstractTalentStyleProvider(DataGenerator generator, String modid) {
-        super(generator, modid, "talents/talents_gui", Builder::new);
+        super(generator, modid, "talents/talent_gui", Builder::new);
     }
 
     public abstract void registerConfigs();
@@ -36,7 +35,7 @@ public abstract class AbstractTalentStyleProvider extends AbstractVaultConfigDat
 
         @Override
         protected void configureConfig(TalentsGUIConfig config) {
-            ((ExpertisesGUIConfigAccessor)config).setStyles(styles);
+            ((TalentsGUIConfigAccessor)config).setStyles(styles);
         }
 
 

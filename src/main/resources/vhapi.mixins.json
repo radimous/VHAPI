@@ -88,6 +88,7 @@
     "accessors.SkillGatesEntryAccessor",
     "accessors.SkillScrollConfigAccessor",
     "accessors.SpecializedSkillAccessor",
+    "accessors.TalentsGUIConfigAccessor",
     "accessors.TaskConfigAccessor",
     "accessors.TemplatePoolAccessor",
     "accessors.TemporalShardConfigAccessor",
