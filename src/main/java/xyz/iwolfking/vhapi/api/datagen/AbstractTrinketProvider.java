@@ -46,7 +46,7 @@ public abstract class AbstractTrinketProvider extends AbstractVaultConfigDataPro
             TrinketConfig.Trinket trinket = new TrinketConfig.Trinket(weight, name, effectText, color, minUses, maxUses);
             ((TrinketConfigTrinketAccessor)trinket).setTrinketConfig(trinketConfig);
             ((TrinketConfigTrinketAccessor)trinket).setMinCraftedUses(minCraftedUses);
-            ((TrinketConfigTrinketAccessor)trinket).setMinCraftedUses(maxCraftedUses);
+            ((TrinketConfigTrinketAccessor)trinket).setMaxCraftedUses(maxCraftedUses);
             return trinket;
         }
 

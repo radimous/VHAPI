@@ -53,6 +53,8 @@ public class CustomVaultConfigReader<T extends Config> {
             readConfig = config;
         } catch (Exception e) {
             VHAPILoggerUtils.info("Failed to read " + name);
+            VHAPILoggerUtils.debug(e.toString());
+            ModConfigs.INVALID_CONFIGS.add("[VHAPI] Failed to load " + name + " please investigate your logs and datapack!");
             return null;
         }
         return readConfig;
